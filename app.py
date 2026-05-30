@@ -6,13 +6,26 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 import os
+import sys
 import subprocess
 
 if not os.path.exists("revolut_usage_50k_users_v2.csv"):
-    subprocess.run(["python", "data/synthetic_data_v2.py"], check=True)
+    result = subprocess.run(
+        [sys.executable, "data/synthetic_data_v2.py"],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        st.error(f"Data generation failed:\n{result.stderr}")
+        st.stop()
 
 if not os.path.exists("user_segments.csv"):
-    subprocess.run(["python", "analysis/analysis.py"], check=True)
+    result = subprocess.run(
+        [sys.executable, "analysis/analysis.py"],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        st.error(f"Analysis failed:\n{result.stderr}")
+        st.stop()
 
 # ============================================================
 # PAGE CONFIG
