@@ -322,6 +322,92 @@ plt.savefig("5_regional_heatmap.png", dpi=150)
 plt.close()
 print(" Saved: 5_regional_heatmap.png")
 
+
+# ============================================================
+# GENERATE CSV OUTPUTS FOR STREAMLIT
+# ============================================================
+
+# adoption.csv
+adoption = pd.DataFrame([{
+    "card_adoption_pct":    round(100.0 * (df["card_payments"] > 5).sum() / df["user_id"].nunique(), 2),
+    "bank_adoption_pct":    round(100.0 * (df["bank_transfers"] > 2).sum() / df["user_id"].nunique(), 2),
+    "savings_adoption_pct": round(100.0 * (df["savings_vaults"] > 1).sum() / df["user_id"].nunique(), 2),
+    "crypto_adoption_pct":  round(100.0 * (df["crypto_usage"] > 1).sum() / df["user_id"].nunique(), 2),
+    "stock_adoption_pct":   round(100.0 * (df["stock_trading"] > 1).sum() / df["user_id"].nunique(), 2),
+    "intl_adoption_pct":    round(100.0 * (df["intl_transfers"] > 1).sum() / df["user_id"].nunique(), 2),
+}])
+adoption.to_csv("adoption.csv", index=False)
+print(" Saved: adoption.csv")
+
+# premiums.csv
+premiums = df.groupby("premium").agg(
+    avg_card_payments=("card_payments", "mean"),
+    avg_bank_transfers=("bank_transfers", "mean"),
+    avg_savings_vaults=("savings_vaults", "mean"),
+    avg_crypto_usage=("crypto_usage", "mean"),
+    avg_stock_trading=("stock_trading", "mean"),
+    avg_intl_transfers=("intl_transfers", "mean"),
+).round(2).reset_index()
+premiums.to_csv("premiums.csv", index=False)
+print(" Saved: premiums.csv")
+
+# trends.csv
+trends = df.groupby("month").agg(
+    avg_card_payments=("card_payments", "mean"),
+    avg_bank_transfers=("bank_transfers", "mean"),
+    avg_savings_vaults=("savings_vaults", "mean"),
+    avg_crypto_usage=("crypto_usage", "mean"),
+    avg_stock_trading=("stock_trading", "mean"),
+    avg_intl_transfers=("intl_transfers", "mean"),
+).round(2).reset_index()
+trends.to_csv("trends.csv", index=False)
+print(" Saved: trends.csv")
+
+# regional.csv
+regional = df.groupby("country").agg(
+    avg_card_payments=("card_payments", "mean"),
+    avg_bank_transfers=("bank_transfers", "mean"),
+    avg_savings_vaults=("savings_vaults", "mean"),
+    avg_crypto_usage=("crypto_usage", "mean"),
+    avg_stock_trading=("stock_trading", "mean"),
+    avg_intl_transfers=("intl_transfers", "mean"),
+    total_users=("user_id", "nunique"),
+).round(2).reset_index()
+regional.to_csv("regional.csv", index=False)
+print(" Saved: regional.csv")
+
+# age_groups.csv
+df["age_group"] = pd.cut(
+    df["age"], bins=[17, 25, 35, 45, 100],
+    labels=["18-25", "26-35", "36-45", "46+"]
+)
+age_groups = df.groupby("age_group", observed=True).agg(
+    avg_crypto=("crypto_usage", "mean"),
+    avg_savings=("savings_vaults", "mean"),
+    avg_card=("card_payments", "mean"),
+    avg_stock=("stock_trading", "mean"),
+    total_users=("user_id", "nunique"),
+).round(2).reset_index()
+age_groups.to_csv("age_groups.csv", index=False)
+print(" Saved: age_groups.csv")
+
+# lag_insight.csv
+df["crypto_segment"] = pd.cut(
+    df["crypto_usage"], bins=[-1, 4, 9, 10000],
+    labels=["Low Crypto", "Medium Crypto", "High Crypto"]
+)
+lag_insight = df.groupby("crypto_segment", observed=True).agg(
+    avg_savings=("savings_vaults", "mean"),
+    avg_card_payments=("card_payments", "mean"),
+    row_count=("user_id", "count"),
+).round(2).reset_index()
+lag_insight.to_csv("lag_insight.csv", index=False)
+print(" Saved: lag_insight.csv")
+
+# user_segments.csv
+user_agg.to_csv("user_segments.csv", index=False)
+print(" Saved: user_segments.csv")
+
 # ============================================================
 # SUMMARY
 # ============================================================
