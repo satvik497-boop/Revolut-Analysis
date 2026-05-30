@@ -5,6 +5,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+import os
+import subprocess
+
+if not os.path.exists("revolut_usage_50k_users_v2.csv"):
+    subprocess.run(["python", "data/synthetic_data_v2.py"], check=True)
+
+if not os.path.exists("user_segments.csv"):
+    subprocess.run(["python", "analysis/analysis.py"], check=True)
+
 # ============================================================
 # PAGE CONFIG
 # ============================================================
