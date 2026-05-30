@@ -7,25 +7,24 @@ from plotly.subplots import make_subplots
 
 import os
 import sys
-import subprocess
 
-if not os.path.exists("revolut_usage_50k_users_v2.csv"):
-    result = subprocess.run(
-        [sys.executable, "data/synthetic_data_v2.py"],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        st.error(f"Data generation failed:\n{result.stderr}")
-        st.stop()
+# Auto-generate all required CSVs if missing
+if not os.path.exists("revolut_usage_50k_users_v2.csv") or \
+   not os.path.exists("adoption.csv") or \
+   not os.path.exists("user_segments.csv"):
 
-if not os.path.exists("user_segments.csv"):
-    result = subprocess.run(
-        [sys.executable, "analysis/analysis.py"],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        st.error(f"Analysis failed:\n{result.stderr}")
-        st.stop()
+    st.info("⏳ Generating dataset for first time — this takes 2-3 minutes...")
+
+    # Add paths so we can import the scripts directly
+    sys.path.insert(0, os.path.dirname(__file__))
+
+    # Run data generation inline
+    exec(open("data/synthetic_data_v2.py").read())
+
+    # Run analysis inline
+    exec(open("analysis/analysis.py").read())
+
+    st.rerun()
 
 # ============================================================
 # PAGE CONFIG
